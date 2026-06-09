@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.so
+.venv
+
+# 包文件
+*.egg
+*.egg-info/
+.installed.cfg
+*.egg-info
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+.coverage
+.coverage.*
+.cache
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# 环境变量
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 数据文件
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.npy
+*.npz
+*data/
+assets/
+logs/
+checkpoints/
+wandb/
+
+# 大型文件
+*.zip
+*.tar.gz
+*.7z
+
+# 临时文件
+tmp/
+.tmp/
+temp/
+debug/
+
+# 采集数据
+lerobot_data**/**
+mcap_data**/**
