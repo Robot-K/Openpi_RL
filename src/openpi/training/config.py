@@ -544,17 +544,17 @@ _CONFIGS = [
             num_bins=200,
             return_min=0.0,
             return_max=1.0,
-            action_horizon=50,
+            action_horizon=1,
             action_dim=14,
         ),
         data=LeRobotAirbotVFDataConfig(
-            repo_id="Fold_clothes_v3",
-            base_config=DataConfig(prompt_from_task=True),
+            repo_id="fold_clothv3",
+            base_config=DataConfig(prompt_from_task=True, action_sequence_keys=()),
             enable_symmetry_aug=False,
             enable_channel_permutation_aug=True,
         ),
         batch_size=48*torch.cuda.device_count(), # Set to 48*GPU_count by default
-        num_workers=4,
+        num_workers=16,
         seed=42,
         lr_schedule=_optimizer.CosineDecaySchedule(
             warmup_steps=1_000,
@@ -590,7 +590,7 @@ _CONFIGS = [
             discrete_state_input=True,
         ),
         data=LeRobotAirbotDataConfig(
-            repo_id="Fold_clothes_v3",
+            repo_id="fold_clothv3",
             base_config=DataConfig(prompt_from_task=True),
             extra_delta_transform=False,
             enable_symmetry_aug=False,
@@ -628,7 +628,7 @@ _CONFIGS = [
             discrete_state_input=False,
         ),
         data=LeRobotAirbotDataConfig(
-            repo_id="Fold_clothes_v3",
+            repo_id="fold_clothv3",
             base_config=DataConfig(prompt_from_task=True),
             extra_delta_transform=False,
             enable_symmetry_aug=False,

@@ -35,6 +35,9 @@ __pycache__/
 *.swp
 *.swo
 *~
+.agents
+.codex
+.claude
 
 # 系统文件
 .DS_Store

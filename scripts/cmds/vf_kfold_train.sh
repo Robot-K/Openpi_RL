@@ -5,13 +5,14 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
-REPO_ID=Fold_clothes_v3
+REPO_ID=fold_clothv3
 VF_CONFIG=pi06_rl_vf_airbot_clothes_folding
-GPUS=(1 3 4 5 6 7)      # 可用 GPU 列表
+GPUS=(0 1 2 3 4 5)      # 可用 GPU 列表
 NUM_FOLDS=3
 NUM_TRAIN_STEPS=40000
 GPUS_PER_FOLD=2          # 每个 fold 使用多少个连续 GPU
-EXP_PREFIX=kfold_v3_iter4
+HF_LOAD_NUM_PROC=8       # Hugging Face parquet split 生成进程数；3 个 fold 同跑时总进程约为 3x
+EXP_PREFIX=kfold_v3_iter4_wuxi
 RESUME=false             # true = 从已有 checkpoint 继续；false = 从头训练
 TMP_ROOT=./.tmp/vf_kfold_train
 # ───────────────────────────────────────────────────────────────────────────────
@@ -52,6 +53,7 @@ for (( fold=0; fold<NUM_FOLDS; fold++ )); do
     XDG_CACHE_HOME="${TMP_ROOT}/xdg_cache" \
     HF_LEROBOT_HOME=./lerobot_data \
     HF_HOME=$HOME/.cache/huggingface \
+    LEROBOT_HF_LOAD_NUM_PROC="${HF_LOAD_NUM_PROC}" \
     JAX_COMPILATION_CACHE_DIR="${TMP_ROOT}/jax_cache" \
         uv run scripts/train.py "${VF_CONFIG}" \
             --exp-name "${exp_name}" \

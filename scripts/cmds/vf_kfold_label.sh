@@ -5,13 +5,13 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
-REPO_ID=Fold_clothes_v3
+REPO_ID=fold_clothv3
 VF_CONFIG=pi06_rl_vf_airbot_clothes_folding
 GPUS=(0 1 2 3 4 5)      # 可用 GPU 列表
 NUM_FOLDS=3
 GPUS_PER_FOLD=2
-EXP_PREFIX=kfold_v3_iter4
-CHECKPOINT_STEP=20000        # 留空 = 自动检测最新 checkpoint
+EXP_PREFIX=kfold_v3_iter4_wuxi
+CHECKPOINT_STEP=        # 留空 = 自动检测最新 checkpoint
 BATCH_SIZE=48
 POSITIVE_FRACTION=0.3
 GAMMA=0.985

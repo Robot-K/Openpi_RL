@@ -359,10 +359,13 @@ class McapConverter:
 
         print(f"State length: {self.state_length}, Action length: {self.action_length}")
 
-    def create_dataset(self) -> LeRobotDataset:
+    def create_dataset(self, repo_id: str | None = None) -> LeRobotDataset:
         """
         Placeholder for dataset creation logic.
         This method should implement the logic to convert MCAP files to LeRobot format.
+
+        ``repo_id`` overrides the output directory name (defaults to ``self.task_name``).
+        The per-frame ``task`` label still uses ``self.task_name``.
         """
         features = {}
         for camera_name in self.camera_topics:
@@ -389,7 +392,7 @@ class McapConverter:
         print(f"Creating LeRobot dataset with features: {features}")
 
         return LeRobotDataset.create(
-            repo_id=self.task_name,
+            repo_id=repo_id or self.task_name,
             robot_type=self.robot_type,
             fps=self.fps,
             features=features,
@@ -826,6 +829,7 @@ class McapConverter:
 
 def main(
     data_dir: str,
+    repo_id: str | None = None,
     resume: bool = False,
     force: bool = False,
     skip_episodes: int = -1,
@@ -836,6 +840,10 @@ def main(
 
     Args:
         data_dir: Path to directory containing ``config.py`` and MCAP folders.
+        repo_id: Override the output directory name under ``HF_LEROBOT_HOME``. Defaults
+            to ``TASK_NAME`` from config.py. Use this to give two data dirs that share the
+            same ``TASK_NAME`` their own separate output datasets (e.g. when converting
+            several dirs in parallel). The per-frame ``task`` label still uses ``TASK_NAME``.
         resume: Append new episodes to an existing dataset. When resuming within the
             same data directory, the already-converted episodes are skipped automatically.
             When appending from a *new* data directory into an existing dataset (e.g.
@@ -854,7 +862,8 @@ def main(
             Only applies when ``intervention_only=True``. Shorter segments are dropped.
     """
     mcap_converter = McapConverter(data_dir)
-    output_path = HF_LEROBOT_HOME / mcap_converter.task_name
+    out_name = repo_id or mcap_converter.task_name
+    output_path = HF_LEROBOT_HOME / out_name
     print(f"Output path: {output_path}")
 
     n_skip = 0
@@ -863,7 +872,7 @@ def main(
     if output_path.exists():
         if resume:
             try:
-                dataset = LeRobotDataset(repo_id=mcap_converter.task_name)
+                dataset = LeRobotDataset(repo_id=out_name)
                 dataset.start_image_writer(num_processes=4, num_threads=3)
                 if skip_episodes >= 0:
                     n_skip = skip_episodes
@@ -878,14 +887,14 @@ def main(
                 )
         elif force:
             shutil.rmtree(output_path)
-            dataset = mcap_converter.create_dataset()
+            dataset = mcap_converter.create_dataset(repo_id=out_name)
         else:
             raise SystemExit(
                 f"Output directory already exists: {output_path}\n"
                 "Use --force to overwrite or --resume to continue."
             )
     else:
-        dataset = mcap_converter.create_dataset()
+        dataset = mcap_converter.create_dataset(repo_id=out_name)
 
     mcap_converter.load_to_dataset(
         dataset,

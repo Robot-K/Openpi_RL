@@ -22,6 +22,31 @@ import openpi.transforms as _transforms
 
 T_co = TypeVar("T_co", covariant=True)
 
+_LEROBOT_ORIGINAL_LOAD_DATASET = lerobot_dataset.load_dataset
+
+
+def _patch_lerobot_hf_load_dataset_num_proc() -> None:
+    raw_num_proc = os.environ.get("LEROBOT_HF_LOAD_NUM_PROC", "")
+    if not raw_num_proc:
+        return
+
+    try:
+        num_proc = int(raw_num_proc)
+    except ValueError:
+        logging.warning("Ignoring invalid LEROBOT_HF_LOAD_NUM_PROC=%r", raw_num_proc)
+        return
+
+    if num_proc <= 1:
+        return
+
+    def load_dataset_with_num_proc(*args, **kwargs):
+        if args and args[0] == "parquet":
+            kwargs.setdefault("num_proc", num_proc)
+        return _LEROBOT_ORIGINAL_LOAD_DATASET(*args, **kwargs)
+
+    lerobot_dataset.load_dataset = load_dataset_with_num_proc
+    logging.info("Using datasets.load_dataset num_proc=%d for LeRobot parquet loading", num_proc)
+
 
 class Dataset(Protocol[T_co]):
     """Interface for a dataset with random access."""
@@ -138,6 +163,8 @@ def create_torch_dataset(
     data_config: _config.DataConfig, action_horizon: int, model_config: _model.BaseModelConfig
 ) -> Dataset:
     """Create a dataset for training."""
+    _patch_lerobot_hf_load_dataset_num_proc()
+
     repo_id = data_config.repo_id
     if repo_id is None:
         raise ValueError("Repo ID is not set. Cannot create dataset.")
@@ -149,11 +176,14 @@ def create_torch_dataset(
     # Always load the full dataset so LeRobot's episode_data_index uses global episode indices.
     # Filtering by fold is done via a Subset after loading to avoid an off-by-one bug in LeRobot
     # where episode_data_index is positional (0..N_filtered-1) but __getitem__ uses global ep_idx.
+    delta_timestamps = None
+    if data_config.action_sequence_keys:
+        delta_timestamps = {
+            key: [t / dataset_meta.fps for t in range(action_horizon)] for key in data_config.action_sequence_keys
+        }
     dataset = lerobot_dataset.LeRobotDataset(
         data_config.repo_id,
-        delta_timestamps={
-            key: [t / dataset_meta.fps for t in range(action_horizon)] for key in data_config.action_sequence_keys
-        },
+        delta_timestamps=delta_timestamps,
     )
 
     if data_config.prompt_from_task:
