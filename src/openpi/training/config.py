@@ -554,7 +554,7 @@ _CONFIGS = [
             enable_channel_permutation_aug=True,
         ),
         batch_size=48*torch.cuda.device_count(), # Set to 48*GPU_count by default
-        num_workers=16,
+        num_workers=6*torch.cuda.device_count(),
         seed=42,
         lr_schedule=_optimizer.CosineDecaySchedule(
             warmup_steps=1_000,
@@ -596,8 +596,8 @@ _CONFIGS = [
             enable_symmetry_aug=False,
             enable_channel_permutation_aug=True,
         ),
-        batch_size= 6 * torch.cuda.device_count(),
-        num_workers=4,
+        batch_size=8*torch.cuda.device_count(),
+        num_workers=6*torch.cuda.device_count(),
         seed=42,
         lr_schedule=_optimizer.CosineDecaySchedule(
             warmup_steps=1_000,
@@ -608,7 +608,7 @@ _CONFIGS = [
         optimizer=_optimizer.AdamW(clip_gradient_norm=1.0),
         weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
         ema_decay=0.99,
-        num_train_steps=500_000,
+        num_train_steps=300_000,
         log_interval=50,
         save_interval=20000,
         keep_period=2000,
@@ -634,7 +634,7 @@ _CONFIGS = [
             enable_symmetry_aug=False,
         ),
         batch_size=6 * torch.cuda.device_count(),
-        num_workers=4,
+        num_workers=6 * torch.cuda.device_count(),
         seed=42,
         lr_schedule=_optimizer.CosineDecaySchedule(
             warmup_steps=1_000,

@@ -6,9 +6,10 @@ cd "$(dirname "$0")/../.."
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
 POLICY_CONFIG=pi06_rl_pretrain_airbot_clothes_folding
-EXP_NAME=policy_v3_wospatiodelta_iter4
+EXP_NAME=policy_v3_wospatiodelta_iter4_tv1
 GPUS=0,1,2,3,4,5,6,7
-OVERWRITE=true   # false = resume
+OVERWRITE=false   # false = resume
+HF_LOAD_NUM_PROC=16
 TMP_ROOT=./.tmp/train_policy
 # ───────────────────────────────────────────────────────────────────────────────
 
@@ -30,6 +31,7 @@ XDG_CACHE_HOME="${TMP_ROOT}/xdg_cache" \
 HF_LEROBOT_HOME=./lerobot_data \
 HF_HOME=$HOME/.cache/huggingface \
 JAX_COMPILATION_CACHE_DIR="${TMP_ROOT}/jax_cache" \
+LEROBOT_HF_LOAD_NUM_PROC="${HF_LOAD_NUM_PROC}" \
     uv run scripts/train.py "${POLICY_CONFIG}" \
         --exp-name "${EXP_NAME}" \
         "${FLAG}"

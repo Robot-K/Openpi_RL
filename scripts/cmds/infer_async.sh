@@ -9,6 +9,7 @@ HOST=127.0.0.1
 PORT=8000
 PROMPT="Fold clothes"
 
+
 # TCS（Temporal Chunk Smoothing）平滑参数：
 # tcs_min_overlap      新旧 chunk 混合（blend）时的最小重叠窗口长度；
 #                      重叠区内按线性权重从旧→新渐变，消除动作跳变
@@ -18,9 +19,10 @@ PROMPT="Fold clothes"
 # tcs_drop_max         推理延迟补偿：新 chunk 到达时，丢弃已过期的前 N 步
 #                      （N = min(实际延迟步数, tcs_drop_max)），避免执行过时动作
 
-TCS_MIN_OVERLAP=3
 MAX_INFERENCE_RATE=2  # 最大推理请求频率（Hz）；0 = 不限速
+STEP_RATE=200         # 动作发布频率（Hz）
 INITIAL_ACTION_WAIT_S=1.0
+TCS_MIN_OVERLAP=3
 TCS_DROP_MAX=12
 
 INTERPOLATE=false      # true = 启用动作插值平滑
@@ -41,6 +43,7 @@ cmd=(
     --policy-config.host "${HOST}"
     --policy-config.port "${PORT}"
     --prompt "${PROMPT}"
+    --step-rate "${STEP_RATE}"
     --max-inference-rate "${MAX_INFERENCE_RATE}"
     --tcs-drop-max "${TCS_DROP_MAX}"
     --tcs-min-overlap "${TCS_MIN_OVERLAP}"

@@ -10,7 +10,7 @@ VF_CONFIG=pi06_rl_vf_airbot_clothes_folding
 GPUS=(0 1 2 3 4 5)      # 可用 GPU 列表
 NUM_FOLDS=3
 GPUS_PER_FOLD=2
-EXP_PREFIX=kfold_v3_iter4_wuxi
+EXP_PREFIX=kfold_v3_iter4_tv1
 CHECKPOINT_STEP=        # 留空 = 自动检测最新 checkpoint
 BATCH_SIZE=48
 POSITIVE_FRACTION=0.3

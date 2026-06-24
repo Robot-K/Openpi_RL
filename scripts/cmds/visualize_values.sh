@@ -4,11 +4,13 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
-DATA_DIR=./lerobot_data/Fold_clothes_v3
-OUTPUT_DIR=./assets/visualizations_values/visualizations_v3_iter4
-EPISODES=100,200,300,400,500,600,700,800,900,999          # 留空则处理全部
+DATA_DIR=./lerobot_data/fold_clothv3
+OUTPUT_DIR=./assets/visualizations_values/chunk010
+CHUNK=10
+EPISODES=0,100,200,300,400,500,600,700,800,900          # chunk 内下标；留空则处理全部
 NUM_CAMERA_SAMPLES=5
-SKIP_CAMERAS=true      # true = 跳过相机图像，加快速度
+SKIP_CAMERAS=false      # true = 跳过相机图像，加快速度
+SKIP_EPISODE_VIDEO=true
 # ───────────────────────────────────────────────────────────────────────────────
 
 mkdir -p logs "${OUTPUT_DIR}"
@@ -26,9 +28,16 @@ if [[ "$SKIP_CAMERAS" == "true" ]]; then
     SKIP_FLAG="--skip_cameras"
 fi
 
+VIDEO_FLAG=""
+if [[ "$SKIP_EPISODE_VIDEO" == "true" ]]; then
+    VIDEO_FLAG="--skip_episode_video"
+fi
+
 uv run scripts/tools/visualize_values.py \
     --data_dir "${DATA_DIR}" \
     --output_dir "${OUTPUT_DIR}" \
+    --chunk "${CHUNK}" \
     --num_camera_samples "${NUM_CAMERA_SAMPLES}" \
     ${EPISODES_FLAG} \
-    ${SKIP_FLAG}
+    ${SKIP_FLAG} \
+    ${VIDEO_FLAG}

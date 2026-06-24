@@ -8,6 +8,7 @@ cd "$(dirname "$0")/../.."
 HOST=127.0.0.1
 PORT=8000
 PROMPT="Fold clothes"
+STEP_RATE=25           # 动作发布频率（Hz）
 CHUNK_SIZE_EXECUTE=20
 INTERPOLATE=false      # true = 启用动作插值平滑
 RECORD=true            # true = 保存 MCAP 数据
@@ -31,6 +32,7 @@ cmd=(
     --policy-config.host "${HOST}"
     --policy-config.port "${PORT}"
     --prompt "${PROMPT}"
+    --step-rate "${STEP_RATE}"
     --chunk-size-execute "${CHUNK_SIZE_EXECUTE}"
 )
 

@@ -61,6 +61,37 @@ _SAVE_SUBSTEP_TIMINGS = {
     "meta_save_episode": 0.0,
 }
 _META_PATCHED = False
+_LEROBOT_ORIGINAL_LOAD_DATASET = _lerobot_ds_mod.load_dataset
+_LEROBOT_HF_LOAD_PATCHED = False
+
+
+def _patch_lerobot_hf_load_dataset_num_proc() -> None:
+    """Allow parallel HuggingFace parquet loading when resuming a large dataset."""
+    global _LEROBOT_HF_LOAD_PATCHED
+    if _LEROBOT_HF_LOAD_PATCHED:
+        return
+
+    raw_num_proc = os.environ.get("LEROBOT_HF_LOAD_NUM_PROC", "")
+    if not raw_num_proc:
+        return
+
+    try:
+        num_proc = int(raw_num_proc)
+    except ValueError:
+        print(f"Warning: ignoring invalid LEROBOT_HF_LOAD_NUM_PROC={raw_num_proc!r}")
+        return
+
+    if num_proc <= 1:
+        return
+
+    def load_dataset_with_num_proc(*args, **kwargs):
+        if args and args[0] == "parquet":
+            kwargs.setdefault("num_proc", num_proc)
+        return _LEROBOT_ORIGINAL_LOAD_DATASET(*args, **kwargs)
+
+    _lerobot_ds_mod.load_dataset = load_dataset_with_num_proc
+    _LEROBOT_HF_LOAD_PATCHED = True
+    print(f"Using datasets.load_dataset num_proc={num_proc} for LeRobot parquet loading")
 
 
 def _reset_save_substep_timings():
@@ -861,6 +892,8 @@ def main(
         min_intervention_frames: Minimum length for an intervention segment to be kept.
             Only applies when ``intervention_only=True``. Shorter segments are dropped.
     """
+    _patch_lerobot_hf_load_dataset_num_proc()
+
     mcap_converter = McapConverter(data_dir)
     out_name = repo_id or mcap_converter.task_name
     output_path = HF_LEROBOT_HOME / out_name

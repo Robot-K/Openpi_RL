@@ -618,6 +618,8 @@ def main():
                         help="输出图片保存目录")
     parser.add_argument("--episodes", type=str, default=None,
                         help="逗号分隔的 episode 编号, 如 '0,1,2'; 默认全部")
+    parser.add_argument("--chunk", type=int, default=8,
+                        help="要可视化的数据 chunk 编号，例如 6 表示 chunk-006")
     parser.add_argument("--num_camera_samples", type=int, default=5,
                         help="每个 episode 采样多少帧画相机拼图")
     parser.add_argument("--skip_cameras", action="store_true",
@@ -634,7 +636,9 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    parquet_dir = data_dir / "data" / "chunk-008"
+    parquet_dir = data_dir / "data" / f"chunk-{args.chunk:03d}"
+    if not parquet_dir.exists():
+        raise FileNotFoundError(f"找不到 chunk 目录: {parquet_dir}")
     parquet_files = sorted(parquet_dir.glob("episode_*.parquet"))
     print(f"发现 {len(parquet_files)} 个 episode 文件:")
     for pf in parquet_files:

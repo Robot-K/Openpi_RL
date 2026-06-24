@@ -12,7 +12,7 @@ NUM_FOLDS=3
 NUM_TRAIN_STEPS=40000
 GPUS_PER_FOLD=2          # 每个 fold 使用多少个连续 GPU
 HF_LOAD_NUM_PROC=8       # Hugging Face parquet split 生成进程数；3 个 fold 同跑时总进程约为 3x
-EXP_PREFIX=kfold_v3_iter4_wuxi
+EXP_PREFIX=kfold_v3_iter4_tv1
 RESUME=false             # true = 从已有 checkpoint 继续；false = 从头训练
 TMP_ROOT=./.tmp/vf_kfold_train
 # ───────────────────────────────────────────────────────────────────────────────
